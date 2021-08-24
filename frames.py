@@ -7,6 +7,8 @@ number_of_zones = 1
 def create_input_frame(container):
     n = tk.StringVar()
     frame = tk.Frame(container, bd=2, padx=5, pady=5)
+    
+    #Creates a combobox with dropdowns to choose from
     options = ttk.Combobox(frame, width = 20, textvariable = n)
     #list of veggies
     options['values'] = (
@@ -17,7 +19,7 @@ def create_input_frame(container):
     "Green Bean",
     "Zucchini"
     )
-
+    
     ttk.Label(frame, text = "Select a veggie: ", font = ("Times New Roman", 10)).grid(column=0, row=0, padx=5, pady=5)
     options.grid(column = 0, row = 1)
     options.current()
