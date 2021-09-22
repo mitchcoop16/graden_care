@@ -23,39 +23,46 @@ vegetable_needs = {
 #temp list to compare previous zone number input
 zone_number_list = [1]
 
+
 class MyGarden:
 
     #Contructor
     def __init__(self, container):
         self.container = container
 
-        container.title("The Garden")
+        self.container.title("The Garden")
         
-        
-        #Start off with 1 zone
+        #Set default number of zones
         self.zones = 1
         self.zone_number = tk.IntVar()
         self.zone_number.set(self.zones)
 
         #User input to get the number of zones wanted
-        self.zone_label = tk.Label(container, text='Enter the amount of zones: ')
+        self.zone_label = tk.Label(self.container, text='Enter the amount of zones: ')
         self.zone_label.grid(column=0, row=0)
-        self.zone_entry = tk.Entry(container, textvariable=self.zone_number)
+        self.zone_entry = tk.Entry(self.container, textvariable=self.zone_number)
         self.zone_entry.grid(column=1, row=0)
-        self.zone_button = tk.Button(container, command=self.update_zones, text='Update')
+        self.zone_button = tk.Button(self.container, command=self.update_zones, text='Update')
         self.zone_button.grid(column=2, row=0)
-        
+        self.reset_button = tk.Button(self.container, command=self.reset_frame, text='Reset All')
+        self.reset_button.grid(column=3, row=0)
+
+    def reset_frame(self):
+        for child in self.master.winfo_children():
+            if child != self.zone_label and child != self.zone_entry and child != self.zone_button and child != self.reset_button:
+                child.destroy()
+
     def create_input_frame(self, master):
         """
         Purpose: create a frame with vegetable selections and the recommended needs to keep it healthy
         Returns: frame
         """
+        self.master = master
         #declare string variables
         vegetable = tk.StringVar()
 
         #Create frame
-        self.frame = tk.Frame(master, borderwidth=1, relief=RIDGE, padx=15, pady=10)
-
+        self.frame = tk.Frame(self.master, borderwidth=1, relief=RIDGE, padx=15, pady=10)
         #Get the frame number
         def get_frame(event):
             frame_number = str(event.widget).split(".!")[-2]
@@ -139,14 +146,13 @@ class MyGarden:
         Returns: none
         """
         self.error.destroy()
+        
+    def destroy_current_frames(self):
+        #Delete all frames before creating new ones if there are some present already
+        for child in root.winfo_children():
+                if child != self.zone_label and child != self.zone_entry and child != self.zone_button and child != self.reset_button:
+                    child.destroy()
 
-    # def reset_frame(self):
-    #     if self.zone_numbers == zone_number_list[-2]:
-    #         print(zone_number_list)
-    #     else:
-    #         self.input_frame.destroy
-    #         print("NOPE")
-    
     def update_zones(self):
         """
         Purpose: Creates an new frame for the amount of zones requested. Each zone will be its own frame. Handles errors if an invalid input is submitted
@@ -158,11 +164,12 @@ class MyGarden:
         self.zone_numbers= int(self.zone_numbers)
         zone_number_list.append(self.zone_numbers)
         print("Amount of zones being created: ", self.zone_numbers)
+
         
-        #self.reset_frame()
+        self.destroy_current_frames()
+
         #Create zones 1-5 row 0
         if self.zone_numbers >= 1 and self.zone_numbers <= 5:
-            
             for self.c1 in range(self.zone_numbers):
                 self.input_frame = self.create_input_frame(root)
                 self.input_frame.grid(column=self.c1, row=1)
