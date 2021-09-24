@@ -1,9 +1,9 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import TclError, ttk
 from tkinter.constants import *
 from time import *
 
-#initialize default variables
+#initialize default global variables
 ph_value = "?"
 moisture_value= "?"
 humidity_value= "?"
@@ -20,9 +20,8 @@ vegetable_needs = {
     'Sweet potatoe': {'ph': '3', 'moisture': '66', 'humidity': '76'}
     }
 
-#temp list to compare previous zone number input
+#list of inputs entered
 zone_number_list = [1]
-
 
 class MyGarden:
 
@@ -39,15 +38,19 @@ class MyGarden:
 
         #User input to get the number of zones wanted
         self.zone_label = tk.Label(self.container, text='Enter the amount of zones: ')
-        self.zone_label.grid(column=0, row=0)
+        self.zone_label.grid(column=0, row=0, sticky='nwse') #label will fill column
         self.zone_entry = tk.Entry(self.container, textvariable=self.zone_number)
-        self.zone_entry.grid(column=1, row=0)
+        self.zone_entry.grid(column=1, row=0, stick='nwse') #label will fill column
         self.zone_button = tk.Button(self.container, command=self.update_zones, text='Update')
-        self.zone_button.grid(column=2, row=0)
+        self.zone_button.grid(column=2, row=0, sticky='nswe') #button will fill column
         self.reset_button = tk.Button(self.container, command=self.reset_frame, text='Reset All')
-        self.reset_button.grid(column=3, row=0)
+        self.reset_button.grid(column=3, row=0, sticky='nswe') #button will fill column
 
     def reset_frame(self):
+        """
+        Purpose: Destroy all frames except for zone input, update button, and reset button
+        Returns: none
+        """
         for child in self.master.winfo_children():
             if child != self.zone_label and child != self.zone_entry and child != self.zone_button and child != self.reset_button:
                 child.destroy()
@@ -98,6 +101,10 @@ class MyGarden:
         
 
         def get_sensor_levels(event):
+            """
+            Purpose: update the frame with values from the dictionary 'vegetable needs'
+            Returns: none
+            """
             #current = options.current()
             if options.current != -1:
                 
@@ -139,76 +146,92 @@ class MyGarden:
         
         return self.frame
     
-
     def hide_error(self):
         """
         Purpose: Function to destory the 'error' frame that pops up when an invalid input is given
         Returns: none
         """
         self.error.destroy()
-        
+     
     def destroy_current_frames(self):
+        """
+        Purpose: Destroys all widgets within each frame
+        Returns: none
+        """
         #Delete all frames before creating new ones if there are some present already
         for child in root.winfo_children():
                 if child != self.zone_label and child != self.zone_entry and child != self.zone_button and child != self.reset_button:
                     child.destroy()
+    
+    #Creates an error pop-up
+    def create_error_window(self):
+        """
+        Purpose: create a new window to let user know to enter a valid input
+        Returns: none
+        """
+        self.error = tk.Tk()
+        self.error.title('ERROR')
+        self.error_label = tk.Label(self.error, text="Enter a valid amount between 1 and 15")
+        self.error_label.grid(column=0, row=0)
+        self.error_button =tk.Button(self.error, text = "Acknowledge", command=self.hide_error)
+        self.error_button.grid(column=0, row=2, padx=5, pady=5)
+        
 
     def update_zones(self):
         """
-        Purpose: Creates an new frame for the amount of zones requested. Each zone will be its own frame. Handles errors if an invalid input is submitted
+        Purpose: Creates an new frame for the amount of zones requested. Each zone will be its own frame
         Returns: none
         """
-        
         #Capture current input of the number of zones wanted and print out
-        self.zone_numbers = self.zone_number.get()
-        self.zone_numbers= int(self.zone_numbers)
-        zone_number_list.append(self.zone_numbers)
-        print("Amount of zones being created: ", self.zone_numbers)
-
-        
+        #Handles errors if an invalid input is submitted
+        try:
+            self.zone_numbers = self.zone_number.get()
+            self.zone_numbers= int(self.zone_numbers)
+            zone_number_list.append(self.zone_numbers)
+            print("Amount of zones being created: ", self.zone_numbers)
+        #Throw an error if invalid input is detected
+        except:
+            self.create_error_window()
+            
+        #destroy all previous frames made if present
         self.destroy_current_frames()
 
         #Create zones 1-5 row 0
         if self.zone_numbers >= 1 and self.zone_numbers <= 5:
             for self.c1 in range(self.zone_numbers):
                 self.input_frame = self.create_input_frame(root)
-                self.input_frame.grid(column=self.c1, row=1)
+                self.input_frame.grid(column=self.c1, row=1, padx=1, pady=1)
                 self.c1+=1
 
         #Create zones 6-10 rows 0-1
         elif self.zone_numbers > 5 and self.zone_numbers <=10:
             for self.c1 in range(5):
                 self.input_frame = self.create_input_frame(root)
-                self.input_frame.grid(column=self.c1, row=1)
+                self.input_frame.grid(column=self.c1, row=1, padx=1, pady=1)
                 self.c1+=1
             for self.c2 in range(self.zone_numbers - 5):
                 self.input_frame = self.create_input_frame(root)
-                self.input_frame.grid(column=self.c2, row=2)
+                self.input_frame.grid(column=self.c2, row=2, padx=1, pady=1)
                 self.c2+=1
 
         #Create zones 11-15 rows 0-2
         elif self.zone_numbers > 10 and self.zone_numbers <=15:
             for self.c1 in range(5):
                 self.input_frame = self.create_input_frame(root)
-                self.input_frame.grid(column=self.c1, row=1)
+                self.input_frame.grid(column=self.c1, row=1, padx=1, pady=1)
                 self.c1+=1
             for self.c2 in range(5):
                 self.input_frame = self.create_input_frame(root)
-                self.input_frame.grid(column=self.c2, row=2)
+                self.input_frame.grid(column=self.c2, row=2, padx=1, pady=1)
                 self.c2+=1
             for self.c3 in range(self.zone_numbers - 10):
                 self.input_frame = self.create_input_frame(root)
-                self.input_frame.grid(column=self.c3, row=3)
+                self.input_frame.grid(column=self.c3, row=3, padx=1, pady=1)
                 self.c3+=1
         
         #Output an error if zone is out of range
         else:
-            self.error = tk.Tk()
-            self.error.title('ERROR')
-            self.error_label = tk.Label(self.error, text="Enter a valid amount between 1 and 15")
-            self.error_label.grid(column=0, row=0)
-            self.error_button =tk.Button(self.error, text = "Acknowledge", command=self.hide_error)
-            self.error_button.grid(column=0, row=2, padx=5, pady=5)
+            self.create_error_window()
 
         
 #Initialize main window
